@@ -14,6 +14,9 @@ with open(inputfile) as file_contents:
     uncompleted = 0
     anonymous = 0
 
+    stripe = 0
+    paypal = 0
+
     for index, transaction in enumerate(data):
         if transaction["status"] != "Completed":
             uncompleted += 1
@@ -21,8 +24,10 @@ with open(inputfile) as file_contents:
 
         if transaction["stripe"]:
             payment = transaction["stripe"]
+            stripe += 1
         elif transaction["paypal"]:
             payment = transaction["paypal"]
+            paypal += 1
         else:
             print("Found no payment for index {}".format(index))
             continue
