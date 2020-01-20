@@ -1,11 +1,15 @@
 # PackixExport
 
-## Requirements
+A little script to export Packix transactions.
 
-BeautifulSoup 4, lxml, html5lib
+## How to export
+This could probably be done in a more elegant way using the API endpoint, but Packix uses cookies so the easiest way was to let the browser handle that to export the data.
 
-## Run
+1. Login into Packix.
+2. Open the network tab in the browser's developer tools.
+3. Go to your package you want to export purchases from.
+4. Go into the `transactions` call the browser made to Packix.
+5. Copy the URL and open it in a new tab. Copy it all and save it to a file somwehere.
+6. Run `PackixExport.py <inputfile>`
 
-'pip3 install -r requirements.txt'
-
-'python PackixExport.py <file.html>'
+Repeat steps 3-6 for every package of interest.

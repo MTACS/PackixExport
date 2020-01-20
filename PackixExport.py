@@ -1,17 +1,38 @@
 #!/usr/bin/python
 
-from bs4 import BeautifulSoup
-import re
 import sys
+import json
 
-inputfile = sys.argv
+if len(sys.argv) < 2:
+    sys.exit("You need to specify an input file containing the API output");
 
-with open(inputfile[1]) as html_file:
-    soup = BeautifulSoup(html_file, 'lxml')
+inputfile = sys.argv[1]
 
-for tag in soup.find_all('div', {"class": ["data-column", "column-accountId", "ng-star-inserted"]}):
-    if (len(tag) > 0):
-        email = re.findall("([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)", tag.text)
-        for item in email:
-            print(item)
-        
+with open(inputfile) as file_contents:
+    data = json.load(file_contents)
+    exported = 0
+    uncompleted = 0
+    anonymous = 0
+
+    for index, transaction in enumerate(data):
+        if transaction["status"] != "Completed":
+            uncompleted += 1
+            continue
+
+        if transaction["stripe"]:
+            payment = transaction["stripe"]
+        elif transaction["paypal"]:
+            payment = transaction["paypal"]
+        else:
+            print("Found no payment for index {}".format(index))
+            continue
+
+        email = payment["payer"]["email"]
+        if email == "Unknown":
+            anonymous += 1
+            print("Found an anonymous checkout at index {}".format(index))
+            continue
+
+        exported += 1
+        print("email: {}, date: {}".format(email, transaction["createdOn"]))
+    print("\n\nTotal entries: {}\nExported: {}\nUncompleted: {}\nAnonymous: {}".format(len(data), exported, uncompleted, anonymous))
